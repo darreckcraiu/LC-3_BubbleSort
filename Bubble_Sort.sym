@@ -1,2 +1,37 @@
 //Symbol Name		Page Address
 //----------------	------------
+//	DIGIT1                  308F
+//	DIGIT2                  3090
+//	DIGIT3                  3091
+//	DONE_POPPING            3030
+//	HUNDRED                 3095
+//	INPUTLOOP               3004
+//	INPUT_GOOD              300C
+//	INVALID                 30DF
+//	INVALID_DIGIT           304B
+//	NUMBERS_ARRAY           3097
+//	NUMBERS_ARRAY_END       3098
+//	NUMDONE                 3015
+//	NUMLOOP                 3006
+//	ONE_DIGIT               302E
+//	OVERFLOW                3103
+//	POP                     3063
+//	PROMPT                  309B
+//	PUSH                    304E
+//	SAVE_R1                 3092
+//	SAVE_R2                 3093
+//	SAVE_R4                 3094
+//	SKIP_TIMES_10           308B
+//	SKIP_TIMES_100          307E
+//	STACK_BASE              309A
+//	STACK_COUNT             3099
+//	STACK_OVERFLOW          3060
+//	TEMP                    308E
+//	TEN                     3096
+//	THREE_DIGITS            301F
+//	TIMES_10                3081
+//	TIMES_100               3074
+//	TIMES_100_LOOP          307A
+//	TIMES_10_LOOP           3087
+//	TWO_DIGITS              3028
+//	VALIDATE                303C
