@@ -6,7 +6,6 @@
 ;used to hold digits that are entered by the user. After the input has all been handled, the stack will be empty and ready
 ;to be used to output the final results of the program
 
-
 ;;;;;;;;;;;;;;;;;;;;;
 ;;;;INITIAL INPUT;;;;
 ;;;;;;;;;;;;;;;;;;;;;
@@ -133,28 +132,151 @@ INPUTLOOP ;this loop will repeat 8 times so that 8 numbers can be recieved and p
 	AND R6, R6, #0	;clear R6
 	
 
-CHECKARRAY ;this is the beginning of the "do-while" loop. If at least one swap takes place in the following code, we will end up jumping up to this point to perform another iteration
-	
-	AND R1, R1, #0	;clear R1 setting it to 0. We are resetting the boolean value to false by doing this
-
-
-	;HERE WILL BE THE CODE FOR THE FOR-LOOP
-
-	
-	ADD R1, R1, #0	;to check the boolean value/R1
-	BRn CHECKARRAY	;if it is negative that means -1 is in R1 which means the value is true. This means that a swap took place which also means that we must jump to the beginning of the "do-while" loop again
-
-
+;CHECKARRAY ;this is the beginning of the "do-while" loop. If at least one swap takes place in the following code, we will end up jumping up to this point to perform another iteration
+;	
+;	AND R1, R1, #0	;clear R1 setting it to 0. We are resetting the boolean value to false by doing this
+;
+;
+;	;HERE WILL BE THE CODE FOR THE FOR-LOOP
+;
+;	
+;	ADD R1, R1, #0	;to check the boolean value/R1
+;	BRn CHECKARRAY	;if it is negative that means -1 is in R1 which means the value is true. This means that a swap took place which also means that we must jump to the beginning of the "do-while" loop again
+;
+;
 ;once the program makes it to this point, that means that the array is completely sorted in ascending order. We can move on the last part of the program which will output the newly sorted array elements to the console	
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;;;;FINAL OUTPUT;;;;;
 ;;;;;;;;;;;;;;;;;;;;;
 	
+;at this point, the array is now sorted from least to greatest. All that's left to do is to push these values onto the stack and display them to the console one by one. 
+;what will make this complicated is the fact that we can only display one character at a time and so must reverse the process from earlier of going from mulitiple digits to one value. We must go from one value to multiple digits
+	
+	AND R1, R1, #0	;clear R1. Will be used to increment the loop counter and to hold values.
+	AND R2, R2, #0	;clear R2. Will hold the beginning address of the array
+	AND R3, R3, #0	;clear R3. Will hold the address of the current element and will hold values
+	AND R4, R4, #0  ;clear R4. Will hold the stack count
+
+	;We will do a for loop that iterates 8 times to display the 8 numbers
+
+	LEA R0, PROMPT2	;load PROMPT2 into R0 to be displayed
+	PUTS		;display string from R0 to console
+DISPLAY_LOOP	;the beginning of the for loop
+	LD R1, LOOP_COUNTER1 	;load the loop counter into R1
+	LD R2, NUMBERS_ARRAY	;load the beginning address of the array
+	ADD R3, R2, R1 		;add the current iteration(i) to the beginning address of the array and store in R3. This is the address of the current element
+	LDR R3, R3, #0		;load the value located at memory address in R3 into R3. R3 now holds the actual value from the array
+	ADD R1, R3, #0		;also copy R3 over to R1
+
+;We need to take this value and get the rightmost digit from it and push it onto the stack. We need to do this until there are no more digits to grab. 
+;We will use 234 as an example number: To extract 4 from it, do 234 mod 10 = 4. Push the 4 onto the stack. To remove the 4 from 234 do 234 / 10 = 23.4 . We are left with 23.
+;Rinse and repeat until the division part returns 0. That means it was the final digit and that we have successfully pushed all of the value's digits. 
+	
+ EXTRACT_LOOP	;this loop runs until all digits are extracted and pushed onto the stack
+	JSR MOD_10	;Do R3 mod 10 and return in R3
+	JSR PUSH	;push R3 onto the stack
+	ADD R3, R1, #0	;copy the value in R1 over to R3
+	JSR DIV_10	;divide the value in R3 by 10 and return the result in R3
+	ADD R1, R3, #0	;copy this new R3 value over to R1	
+	BRp EXTRACT_LOOP ;if the division returns a positive number, there is still at least one digit left, so jump to the beginning of the loop again to extract the next digit
+	
+	;at this point, the current value's digits have all been pushed. The digits can now be output to the console
+	;this next chunk of code is determining which "case" of the switch statement to jump to. This is decided by the number of digits(which is value of STACK_COUNT which is held in R4 right now)
+	ADD R6, R4, #-3		
+	BRz THREE_DIGITS2	;R6 is used to check the count for each of these checks so that the value in R4 stays untouched
+	LD R4, STACK_COUNT
+	ADD R6, R4, #-2
+	BRz TWO_DIGITS2
+	LD R4, STACK_COUNT
+	ADD R6, R4, #-1
+	BRz ONE_DIGIT2
+
+	;this next chunk of code is like the body of a switch statement. The program jumps to one of the 3 labels based on the chunk of code above^^^^
+       THREE_DIGITS2 	;jump here if we are dealing with 3 digits that need to be popped. This is like a "case" line in a switch statement
+	JSR POP 	;pop the top of the stack. This number is our first digit. It is returned in R3	
+	ADD R3, R3, #15
+	ADD R3, R3, #15
+	ADD R3, R3, #15	;add 48 to R3 in order to get the ASCII value of the digit
+	ADD R3, R3, #3
+	ADD R0, R3, #0	;copy R3 over to R0 to be displayed
+	OUT		;output character in R3 to console
+	JSR POP 	;pop the top of the stack. This number is our second digit. It is returned in R3	
+	ADD R3, R3, #15
+	ADD R3, R3, #15
+	ADD R3, R3, #15	;add 48 to R3 in order to get the ASCII value of the digit
+	ADD R3, R3, #3
+	ADD R0, R3, #0	;copy R3 over to R0 to be displayed
+	OUT		;output character in R3 to console
+	JSR POP 	;pop the top of the stack. This number is our last digit. It is returned in R3	
+	ADD R3, R3, #15
+	ADD R3, R3, #15
+	ADD R3, R3, #15	;add 48 to R3 in order to get the ASCII value of the digit
+	ADD R3, R3, #3
+	ADD R0, R3, #0	;copy R3 over to R0 to be displayed
+	OUT		;output character in R3 to console
+	BR DONE_OUTPUTTING ;this is like a "break" statement in a switch statement. Since we do not need to perform the other chunks of code below this one, we "break" and branch to DONE_POPPING
+       TWO_DIGITS2	;jump here if its 2 digits to be popped
+	JSR POP 	;pop the top of the stack. This number is our first digit. It is returned in R3	
+	ADD R3, R3, #15
+	ADD R3, R3, #15
+	ADD R3, R3, #15	;add 48 to R3 in order to get the ASCII value of the digit
+	ADD R3, R3, #3
+	ADD R0, R3, #0	;copy R3 over to R0 to be displayed
+	OUT		;output character in R3 to console
+	JSR POP 	;pop the top of the stack. This number is our second digit. It is returned in R3	
+	ADD R3, R3, #15
+	ADD R3, R3, #15
+	ADD R3, R3, #15	;add 48 to R3 in order to get the ASCII value of the digit
+	ADD R3, R3, #3
+	ADD R0, R3, #0	;copy R3 over to R0 to be displayed
+	OUT		;output character in R3 to console
+	BR DONE_OUTPUTTING ;this is like a "break" statement in a switch statement. Since we do not need to perform the other chunks of code below this one, we "break" and branch to DONE_POPPING
+       ONE_DIGIT2	;jump here if there is only 1 digit to be popped
+	JSR POP 	;pop the top of the stack. This number is our only digit. It is returned in R3	
+	ADD R3, R3, #15
+	ADD R3, R3, #15
+	ADD R3, R3, #15	;add 48 to R3 in order to get the ASCII value of the digit
+	ADD R3, R3, #3
+	ADD R0, R3, #0	;copy R3 over to R0 to be displayed
+	OUT		;output character in R3 to console
+	;we don't need a "break" statement here b/c the next line of code already is DONE_POPPING
+  DONE_OUTPUTTING
+	AND R0, R0, #0
+	ADD R0, R0, #10	
+	OUT	
+
+	;The loop counter can now be incremented
+	LD R1, LOOP_COUNTER1 	;load the loop counter into R1
+	ADD R1, R1, #1		;increment loop counter 
+	ST R1, LOOP_COUNTER1	;store new value back into loop counter
+	ADD R1, R1, #-8		;to check if loop counter is equal to 8
+	BRn DISPLAY_LOOP	;if it is less than 8, jump up to DISPLAY_LOOP again. If it IS 8, break out of the loop
+
 	
 	
 	HALT
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;VARIABLES/LABELS;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+TEMP:	.FILL x0
+LOOP_COUNTER1:	.FILL x0
+LOOP_COUNTER2:	.FILL x0
+
+NUMBERS_ARRAY: 	  .FILL x4050 	;the address of the first element in the array that will hold the 8 numbers
+NUMBERS_ARRAY_END: .FILL x4057 	;the address of the last element in of the array that will hold the 8 numbers
+
+STACK_COUNT: 	.FILL x0	;to keep track of how many things are on the stack
+STACK_BASE: 	.FILL x4107	;the base adress of the stack
+
+INVALID: 	.STRINGZ "\nINVALID INPUT ... HALTING PROGRAM\n"				;display on invalid input from user
+OVERFLOW: 	.STRINGZ "\nSTACK OVERFLOW ERROR ... HALTING PROGRAM\n"				;display on stack overflow error
+PROMPT:		.STRINGZ "Please input 8 numbers from 0-999. Press enter after each number: \n" ;display on program start
+PROMPT2:	.STRINGZ "\nHere are your values sorted in ascending order:\n"	;display after sort algorithm
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;;;;;SUBROUTINES;;;;;
@@ -188,7 +310,8 @@ VALIDATE ;takes the ASCII value stored in TEMP determines if it is a digit. Retu
 	HALT		;stop the program
 PUSH ;pushes the number in R3 onto the stack. If the stack is full, a stack overflow error occurs and the program is halted.
 	ST R1, SAVE_R1	
-	ST R2, SAVE_R2 ;save registers
+	ST R2, SAVE_R2
+	ST R4, SAVE_R4 ;save registers
 
 	AND R4, R4, #0		;clear R4 for use in the subroutine
 
@@ -207,7 +330,8 @@ PUSH ;pushes the number in R3 onto the stack. If the stack is full, a stack over
 	ST R1, STACK_COUNT	;store new stack count
 
 	LD R1, SAVE_R1
-	LD R2, SAVE_R2	;reload registers
+	LD R2, SAVE_R2	
+	LD R4, SAVE_R4	;reload registers
 	RET		;return to main
 
         STACK_OVERFLOW		;this means the stack count is 8 which means this PUSH call will overflow the stack 
@@ -238,7 +362,7 @@ POP ;pop off the value at the top of the stack and return it in R3
 	RET		;return to main
 TIMES_100 ;takes the value in R3 and returns that value * 100 in R3
 	ST R1, SAVE_R1	
-	ST R2, SAVE_R2 ;save registers	
+	ST R2, SAVE_R2 ;save registers
 	
 	ADD R3, R3, #0		;to check if R3 is 0. 
 	BRz SKIP_TIMES_100 	;if it is, then skip the code below and just return with 0 still in R3
@@ -257,7 +381,7 @@ TIMES_100 ;takes the value in R3 and returns that value * 100 in R3
 	RET		;return to main
 TIMES_10 ;takes the value in R3 and returns that value * 10 in R3
 	ST R1, SAVE_R1	
-	ST R2, SAVE_R2 ;save registers	
+	ST R2, SAVE_R2 ;save registers
 	
 	ADD R3, R3, #0		;to check if R3 is 0. 
 	BRz SKIP_TIMES_10 	;if it is, then skip the code below and just return with 0 still in R3
@@ -274,29 +398,70 @@ TIMES_10 ;takes the value in R3 and returns that value * 10 in R3
 	LD R1, SAVE_R1
 	LD R2, SAVE_R2	;reload registers
 	RET		;return to main
+DIV_10 ;takes the value in R3 and returns the quotient of R3/10
+	ST R1, SAVE_R1	
+	ST R2, SAVE_R2
+	ST R4, SAVE_R4 ;save registers
+	
+	ADD R3, R3, #0		;to check if R3 is 0. 
+	BRz SKIP_DIV_10 	;if it is, then skip the code below and just return with 0 still in R3
 
+	AND R1, R1, #0	;clear R1
+	ADD R1, R3, #0	;copy R3 over to R1
+	AND R3, R3, #0	;clear R3. It will hold the quotient
+
+	LD R2, TEN	;load value of 10 into R2
+	NOT R2, R2	;  2s comp
+	ADD R2, R2, #1	;  of R2 to get -10 in R2
+
+SUBTRACT_LOOP
+	ADD R3, R3, #1	; increment R3
+	ADD R1, R1, R2	; add -10 to R1
+	BRzp SUBTRACT_LOOP
+	ADD R3, R3, #-1	; decrement R3 in order to be accurate
+
+	LD R1, SAVE_R1
+	LD R4, SAVE_R4
+	LD R2, SAVE_R2	;reload registers
+	SKIP_DIV_10
+	RET		;return to main
+MOD_10 ;takes the value in R3 and returns the result of R3 mod 10
+	ST R1, SAVE_R1	
+	ST R2, SAVE_R2
+	ST R4, SAVE_R4 ;save registers
+	
+	ADD R3, R3, #0		;to check if R3 is 0. 
+	BRz SKIP_MOD_10 	;if it is, then skip the code below and just return with 0 still in R3
+
+	AND R1, R1, #0	;clear R1
+	ADD R1, R3, #0	;copy R3 over to R1
+	AND R3, R3, #0	;clear R3. It will hold the quotient
+
+	LD R2, TEN	;load value of 10 into R2
+	NOT R2, R2	;  2s comp
+	ADD R2, R2, #1	;  of R2 to get -10 in R2
+
+MOD_SUBTRACT_LOOP
+	ADD R3, R3, #1	; increment R3
+	ADD R1, R1, R2	; add -10 to R1
+	BRzp MOD_SUBTRACT_LOOP
+	ADD R3, R1, #10	;add 10 to R1 and store in R3. That is the result	
+
+	LD R1, SAVE_R1
+	LD R4, SAVE_R4
+	LD R2, SAVE_R2	;reload registers
+	SKIP_MOD_10
+	RET		;return to main
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;VARIABLES/LABELS;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-TEMP	.FILL x0
-SAVE_R1	.FILL x0
-SAVE_R2	.FILL X0
-SAVE_R4	.FILL X0
-
-HUNDRED	.FILL x64 	;just the value of 100 in hex. It is used with the TIMES_100 sub routine
-TEN	.FILL xA  	;just the value of 10 in hex. It is used with the TIMES_10 sub routine
-
-NUMBERS_ARRAY 	  .FILL x4050 	;the address of the first element in the array that will hold the 8 numbers
-NUMBERS_ARRAY_END .FILL x4057 	;the address of the last element in of the array that will hold the 8 numbers
-
-STACK_COUNT 	.FILL x0	;to keep track of how many things are on the stack
-STACK_BASE 	.FILL x4107	;the base adress of the stack
-
-PROMPT		.STRINGZ "Please input 8 numbers from 0-999. Press enter after each number: \n" ;display on program start
-INVALID 	.STRINGZ "\nINVALID INPUT ... HALTING PROGRAM\n"				;display on invalid input from user
-OVERFLOW 	.STRINGZ "\nSTACK OVERFLOW ERROR ... HALTING PROGRAM\n"				;display on stack overflow error
+SAVE_R1:	.FILL x0
+SAVE_R2:	.FILL X0
+SAVE_R4:	.FILL X0
+HUNDRED:	.FILL x64 	;just the value of 100 in hex. It is used with the TIMES_100 sub routine
+TEN:	.FILL xA  	;just the value of 10 in hex. It is used with the TIMES_10 sub routine
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;END;;;;;;;;;;;;
