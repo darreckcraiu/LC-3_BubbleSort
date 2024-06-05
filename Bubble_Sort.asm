@@ -122,12 +122,16 @@ INPUTLOOP ;this loop will repeat 8 times so that 8 numbers can be recieved and p
 ;R1 will hold our boolean value. This value will either be true or false, true meaning that a swap must take place and false meaning no swap must occur. It will start with a value of 0(false)
 ;R2 will be a temporary storage register that we will use to hold a value when swapping two values from the array.
 ;R3 will usually just be the return value that comes from the various subroutines we must use for the bubble-sort algorithm.
-;R4 will be the counter of our for loop that goes through each element in the array.
+;R4 will be the counter of our for loop that goes through each element in the array. It will also act as the array index
+;R5 and R6 will hold the two values that are being compared
 
 	AND R1, R1, #0	;clear R1
 	AND R2, R2, #0	;clear R2
 	AND R3, R3, #0	;clear R3
-	AND R3, R3, #0	;clear R4
+	AND R4, R4, #0	;clear R4
+	AND R5, R5, #0	;clear R5
+	AND R6, R6, #0	;clear R6
+	
 
 CHECKARRAY ;this is the beginning of the "do-while" loop. If at least one swap takes place in the following code, we will end up jumping up to this point to perform another iteration
 	
@@ -146,9 +150,9 @@ CHECKARRAY ;this is the beginning of the "do-while" loop. If at least one swap t
 ;;;;;;;;;;;;;;;;;;;;;
 ;;;;FINAL OUTPUT;;;;;
 ;;;;;;;;;;;;;;;;;;;;;
-
 	
-
+	
+	
 	HALT
 
 
