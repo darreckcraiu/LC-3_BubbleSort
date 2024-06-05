@@ -6,6 +6,11 @@
 ;used to hold digits that are entered by the user. After the input has all been handled, the stack will be empty and ready
 ;to be used to output the final results of the program
 
+
+;;;;;;;;;;;;;;;;;;;;;
+;;;;INITIAL INPUT;;;;
+;;;;;;;;;;;;;;;;;;;;;
+
 ;CODE FOR INPUT. USER NEEDS TO BE ABLE TO ENTER ANY NUMBER FROM 0 TO 999
 	LEA R0, PROMPT 	;load PROMPT into R0
 	PUTS 		;display string from R0 to console
@@ -110,12 +115,41 @@ INPUTLOOP ;this loop will repeat 8 times so that 8 numbers can be recieved and p
 	ADD R1, R1, #-1	;decrement R1 
 	BRp INPUTLOOP	;while R1 is still greater than 0, branch again to the beginiing of INPUTLOOP
 
-;NEXT SECTION OF CODE STARTS HERE
+;;;;;;;;;;;;;;;;;;;;;
+;;;;;BUBBLE-SORT;;;;;
+;;;;;;;;;;;;;;;;;;;;;
+	
+;R1 will hold our boolean value. This value will either be true or false, true meaning that a swap must take place and false meaning no swap must occur. It will start with a value of 0(false)
+;R2 will be a temporary storage register that we will use to hold a value when swapping two values from the array.
+;R3 will usually just be the return value that comes from the various subroutines we must use for the bubble-sort algorithm.
+;R4 will be the counter of our for loop that goes through each element in the array.
+
+	AND R1, R1, #0	;clear R1
+	AND R2, R2, #0	;clear R2
+	AND R3, R3, #0	;clear R3
+	AND R3, R3, #0	;clear R4
+
+CHECKARRAY ;this is the beginning of the "do-while" loop. If at least one swap takes place in the following code, we will end up jumping up to this point to perform another iteration
+	
+	AND R1, R1, #0	;clear R1 setting it to 0. We are resetting the boolean value to false by doing this
+
+
+	;HERE WILL BE THE CODE FOR THE FOR-LOOP
+
+	
+	ADD R1, R1, #0	;to check the boolean value/R1
+	BRn CHECKARRAY	;if it is negative that means -1 is in R1 which means the value is true. This means that a swap took place which also means that we must jump to the beginning of the "do-while" loop again
+
+
+;once the program makes it to this point, that means that the array is completely sorted in ascending order. We can move on the last part of the program which will output the newly sorted array elements to the console	
+
+;;;;;;;;;;;;;;;;;;;;;
+;;;;FINAL OUTPUT;;;;;
+;;;;;;;;;;;;;;;;;;;;;
 
 	
 
 	HALT
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;
