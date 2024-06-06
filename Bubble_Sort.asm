@@ -120,6 +120,13 @@ DONE_POPPING 	;jump here when R5 has been calculated in the previous "switch" st
 ;;;;;BUBBLE-SORT;;;;;
 ;;;;;;;;;;;;;;;;;;;;;
 
+
+; R0 - Holds the current element in the array
+; R1 - Holds the next element in the array for comparison
+; R2 - Temporary register for two's complement calculation and subtraction
+; R3 - Pointer to the current position in the array
+; R4 - Outer loop counter, initially set to ARRAY_SIZE - 1
+; R5 - Inner loop counter, set to the current value of R4 in each pass
    
             LD      R3, NUMBERS_ARRAY    ; Put array pointer into R3
             
