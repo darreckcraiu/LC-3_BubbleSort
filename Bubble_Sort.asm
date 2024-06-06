@@ -17,23 +17,23 @@
 	AND R1, R1, #0	;clear R1
 	ADD R1, R1, #8	;R1 will hold 8 and will be our iteration count for INPUTLOOP
 
-INPUTLOOP ;this loop will repeat 8 times so that 8 numbers can be recieved and processed
+INPUTLOOP ;this loop will repeat 8 times so that 8 numbers can be received and processed
 
 	AND R2, R2, #0	;clear R2
 	ADD R2, R2, #3	;store 3 into R2. This will be the iteration count for NUMLOOP
-  NUMLOOP ;this loop will run either 3 times(for 3 digits) or until the user inputs ENTER
+NUMLOOP ;this loop will run either  3 times(for 3 digits) or until the user inputs ENTER
 	GETC		  ;get an input from the user and store in R0
 	ADD R5, R0, #-10  ;to check if ENTER was the input. R5 is being used so that R0 stays untouched
 	BRnp INPUT_GOOD   ;if enter was NOT the input, continue to INPUT_GOOD
 
-	;if no digits were inputted before ENTER was, then the loop must be restart without decrementing the counter b/c the user hasnt entered a number yet
+	;if no digits were inputted before ENTER was, then the loop must be restarted without decrementing the counter b/c the user hasn't entered a number yet
 	;if at least one digit was inputted before ENTER was, then we can just branch all the way to NUMDONE. That takes place on the next 3 lines of code
 
 	ADD R6, R2, #-3	;to check the loop counter(R2). R6 is used so that R2 stays untouched
 	BRz NUMLOOP 	;if the counter was 3, branch to the beginning of the loop again
 	BR NUMDONE 	;if not, branch to NUMDONE
 
-       INPUT_GOOD
+INPUT_GOOD
 	OUT		;display the character that was entered to the console so the user can see what they entered
 	ST R0, TEMP	;store the value entered into TEMP
 	ADD R5, R5, #0  ;to check again if the key that was inputted was ENTER
@@ -43,12 +43,12 @@ INPUTLOOP ;this loop will repeat 8 times so that 8 numbers can be recieved and p
 	JSR VALIDATE 	;this subroutine will check if the value in TEMP is a digit. If it is not a digit, the program will halt here. Value is returned in R3
 	JSR PUSH 	;R3 will be pushed onto the stack
 
-	ADD R2, R2, #-1	;decrement R2(which is the loop counter for NUMLOOP that was initalized with a value of 3
+	ADD R2, R2, #-1	;decrement R2(which is the loop counter for NUMLOOP that was initialized with a value of 3
 	BRz NUMDONE 	;if R2 == 0, branch to NUMDONE because all 3 digits were entered
 
-  BR NUMLOOP 	;if the program did not branch to NUMDONE on the previous line of code, that means the user is still inputting digits. So branch back up again to NUMLOOP to take another digit
+	BR NUMLOOP 	;if the program did not branch to NUMDONE on the previous line of code, that means the user is still inputting digits. So branch back up again to NUMLOOP to take another digit
 
-	NUMDONE ;branch here when the user has finshed entering the digit(s) of the number. Now we can move on to calculate the actual value of the number based on the digits that were input. We will then store it into the array.
+NUMDONE ;branch here when the user has finished entering the digit(s) of the number. Now we can move on to calculate the actual value of the number based on the digits that were input. We will then store it into the array.
 	  
 	;at this point, the digits for a full number have been entered and pushed onto the stack. Now we must calculate the correct number using
 	;the digits, and then store that number into the array.
@@ -68,8 +68,8 @@ INPUTLOOP ;this loop will repeat 8 times so that 8 numbers can be recieved and p
 	ADD R6, R4, #-1
 	BRz ONE_DIGIT
 
-	;this next chunk of code is like the body of a switch statement. The program jumps to one of the 3 labels based on the chunk of code above^^^^
-       THREE_DIGITS 	;jump here if we are dealing with 3 digits that need to be popped. This is like a "case" line in a switch statement
+	;this next chunk of code is like the body of a switch statement. The program jumps to one of the 3 labels based on the chunk of code above
+THREE_DIGITS 	;jump here if we are dealing with 3 digits that need to be popped. This is like a "case" line in a switch statement
 	JSR POP 	;pop the top of the stack. This number is our third digit. It is returned in R3
 	ADD R5, R5, R3	;add R3 to R5
 	JSR POP 	;pop the second digit. It is returned in R3
@@ -79,21 +79,21 @@ INPUTLOOP ;this loop will repeat 8 times so that 8 numbers can be recieved and p
 	JSR TIMES_100 	;will multiply R3 by 100 since this number is in the "hundreds" place when in decimal form. The value will be returned in R3
 	ADD R5, R5, R3	;add R3 to R5
 	BR DONE_POPPING ;this is like a "break" statement in a switch statement. Since we do not need to perform the other chunks of code below this one, we "break" and branch to DONE_POPPING
-       TWO_DIGITS	;jump here if its 2 digits to be popped
+TWO_DIGITS	;jump here if it's 2 digits to be popped
 	JSR POP 	;pop the second digit. It is returned in R3
 	ADD R5, R5, R3	;add R3 to R5
 	JSR POP 	;pop the first digit. It is returned in R3
 	JSR TIMES_10 	;will multiply R3 by ten
 	ADD R5, R5, R3	;add R3 to R5
 	BR DONE_POPPING ;"break" and branch to DONE_POPPING
-       ONE_DIGIT	;jump here if there is only 1 digit to be popped
+ONE_DIGIT	;jump here if there is only 1 digit to be popped
 	JSR POP ;pop the one digit. It is returned in R3
 	ADD R5, R5, R3	;add R3 to R5
 	;we don't need a "break" statement here b/c the next line of code already is DONE_POPPING
 
-  DONE_POPPING 	;jump here when R5 has been calculated in the previous "switch" statement
+DONE_POPPING 	;jump here when R5 has been calculated in the previous "switch" statement
 		;at this point, we finally have the number the user inputted and it is in R5. Now we just need to add it to the array
-		;the subscript that we will be assigning the value to is dependent on the current count in R1. Remember that R1 holds the loop counter for INPUTLOOP(which was initalized with a value of 8)
+		;the subscript that we will be assigning the value to is dependent on the current count in R1. Remember that R1 holds the loop counter for INPUTLOOP(which was initialized with a value of 8)
 
 	NOT R3, R1 	;we will do 8 - count = subscript. This statement and the next are getting the negative version of the counter(R1) and storing it in R3 so that R1 stays untouched
 	ADD R3, R3, #1	;to get the negative version of the counter and store it in R3
@@ -109,50 +109,57 @@ INPUTLOOP ;this loop will repeat 8 times so that 8 numbers can be recieved and p
 	OUT			;	... this will skip a line in the console since the ASCII value of \n is 10
 
 	;at this point, the user has entered a number and we have calculated the correct value of it and stored that value into our array
-	;these last 2 lines decrement out INPUTLOOP loop counter and then checks if it's equal to 0. If it IS NOT, then we branch all the way up to the beginning of the loop again to start on inputting a new number.
+	;these last 2 lines decrement our INPUTLOOP loop counter and then checks if it's equal to 0. If it IS NOT, then we branch all the way up to the beginning of the loop again to start on inputting a new number.
 	;if it IS, then that means we have successfully taken all 8 numbers from the user and can break out of the loop and move on with the algorithm
 	ADD R1, R1, #-1	;decrement R1 
-	BRp INPUTLOOP	;while R1 is still greater than 0, branch again to the beginiing of INPUTLOOP
+	BRp INPUTLOOP	;while R1 is still greater than 0, branch again to the beginning of INPUTLOOP
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;;;;;BUBBLE-SORT;;;;;
 ;;;;;;;;;;;;;;;;;;;;;
-	
-;R1 will hold our boolean value. This value will either be true or false, true meaning that a swap must take place and false meaning no swap must occur. It will start with a value of 0(false)
-;R2 will be a temporary storage register that we will use to hold a value when swapping two values from the array.
-;R3 will usually just be the return value that comes from the various subroutines we must use for the bubble-sort algorithm.
-;R4 will be the counter of our for loop that goes through each element in the array. It will also act as the array index
-;R5 and R6 will hold the two values that are being compared
 
-	AND R1, R1, #0	;clear R1
-	AND R2, R2, #0	;clear R2
-	AND R3, R3, #0	;clear R3
-	AND R4, R4, #0	;clear R4
-	AND R5, R5, #0	;clear R5
-	AND R6, R6, #0	;clear R6
-	
+   
+            LD      R3, NUMBERS_ARRAY    ; Put array pointer into R3
+            
+	    LD      R4, ARRAY_SIZE       ; Load array size (8) into R4
 
-;CHECKARRAY ;this is the beginning of the "do-while" loop. If at least one swap takes place in the following code, we will end up jumping up to this point to perform another iteration
-;	
-;	AND R1, R1, #0	;clear R1 setting it to 0. We are resetting the boolean value to false by doing this
-;
-;
-;	;HERE WILL BE THE CODE FOR THE FOR-LOOP
-;
-;	
-;	ADD R1, R1, #0	;to check the boolean value/R1
-;	BRn CHECKARRAY	;if it is negative that means -1 is in R1 which means the value is true. This means that a swap took place which also means that we must jump to the beginning of the "do-while" loop again
-;
-;
-;once the program makes it to this point, that means that the array is completely sorted in ascending order. We can move on the last part of the program which will output the newly sorted array elements to the console	
+; OUTERLOOP: This loop runs (ARRAY_SIZE - 1) times,  making 7 passes over the array,
+;            because bubble sort requires n-1 passes to ensure the array is sorted.
+;            It uses R4 as the outer loop counter, decrementing it each time.
+
+OUTERLOOP   ADD     R4, R4, #-1 ; loop n - 1 times
+            BRZ     SORTED      ; looping complete, exit if R4 == 0
+            ADD     R5, R4, #0  ; initialize inner loop counter to outer
+            LD      R3, NUMBERS_ARRAY    ; Set array pointer to beginning of array
+
+; INNERLOOP: This loop performs the actual bubble sort operation within each pass.
+;            It compares adjacent elements and swaps them if they are out of order.
+;            R3 points to the current element, and R5 keeps track of the inner loop count.
+
+INNERLOOP   LDR     R0, R3, #0  ; load item at array pointer
+            LDR     R1, R3, #1  ; load NEXT item
+            NOT     R2, R0      ; 
+            ADD     R2, R2, #1  ; twos complement of the first item
+            ADD     R2, R2, R1  ; subtract first item from next item (R2 = R1 - R0)
+            BRP     NOSWAP      ; if R1 >= R0, no swap needed
+            STR     R1, R3, #0  ; perform swap: store next item in current position
+            STR     R0, R3, #1  ; store current item in next position
+
+NOSWAP      ADD     R3, R3, #1  ; increment array pointer
+            ADD     R5, R5, #-1 ; decrement inner loop counter
+            BRP     INNERLOOP   ; repeat inner loop if R5 > 0
+            BRNZP   OUTERLOOP   ; repeat outer loop if R4 > 0
+
+ARRAY_SIZE .FILL x8
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;;;;FINAL OUTPUT;;;;;
 ;;;;;;;;;;;;;;;;;;;;;
-	
+SORTED	
 ;at this point, the array is now sorted from least to greatest. All that's left to do is to push these values onto the stack and display them to the console one by one. 
-;what will make this complicated is the fact that we can only display one character at a time and so must reverse the process from earlier of going from mulitiple digits to one value. We must go from one value to multiple digits
-	
+;what will make this complicated is the fact that we can only display one character at a time and so must reverse the process from earlier of going from multiple digits to one value. We must go from one value to multiple digits	
 	AND R1, R1, #0	;clear R1. Will be used to increment the loop counter and to hold values.
 	AND R2, R2, #0	;clear R2. Will hold the beginning address of the array
 	AND R3, R3, #0	;clear R3. Will hold the address of the current element and will hold values
@@ -253,29 +260,26 @@ DISPLAY_LOOP	;the beginning of the for loop
 	ADD R1, R1, #-8		;to check if loop counter is equal to 8
 	BRn DISPLAY_LOOP	;if it is less than 8, jump up to DISPLAY_LOOP again. If it IS 8, break out of the loop
 
-	
-	
 	HALT
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;VARIABLES/LABELS;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-TEMP:	.FILL x0
-LOOP_COUNTER1:	.FILL x0
-LOOP_COUNTER2:	.FILL x0
+TEMP	.FILL x0
+LOOP_COUNTER1	.FILL x0
+LOOP_COUNTER2	.FILL x0
 
-NUMBERS_ARRAY: 	  .FILL x4050 	;the address of the first element in the array that will hold the 8 numbers
-NUMBERS_ARRAY_END: .FILL x4057 	;the address of the last element in of the array that will hold the 8 numbers
+NUMBERS_ARRAY 	  .FILL x4050 	;the address of the first element in the array that will hold the 8 numbers
+NUMBERS_ARRAY_END .FILL x4057 	;the address of the last element in of the array that will hold the 8 numbers
 
-STACK_COUNT: 	.FILL x0	;to keep track of how many things are on the stack
-STACK_BASE: 	.FILL x4107	;the base adress of the stack
+STACK_COUNT 	.FILL x0	;to keep track of how many things are on the stack
+STACK_BASE 	.FILL x4107	;the base address of the stack
 
-INVALID: 	.STRINGZ "\nINVALID INPUT ... HALTING PROGRAM\n"				;display on invalid input from user
-OVERFLOW: 	.STRINGZ "\nSTACK OVERFLOW ERROR ... HALTING PROGRAM\n"				;display on stack overflow error
-PROMPT:		.STRINGZ "Please input 8 numbers from 0-999. Press enter after each number: \n" ;display on program start
-PROMPT2:	.STRINGZ "\nHere are your values sorted in ascending order:\n"	;display after sort algorithm
+INVALID 	.STRINGZ "\nINVALID INPUT ... HALTING PROGRAM\n"				;display on invalid input from user
+OVERFLOW 	.STRINGZ "\nSTACK OVERFLOW ERROR ... HALTING PROGRAM\n"				;display on stack overflow error
+PROMPT		.STRINGZ "Please input 8 numbers from 0-999. Press enter after each number: \n" ;display on program start
+PROMPT2	.STRINGZ "\nHere are your values sorted in ascending order:\n"	;display after sort algorithm
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;
@@ -456,11 +460,11 @@ MOD_SUBTRACT_LOOP
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;VARIABLES/LABELS;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
-SAVE_R1:	.FILL x0
-SAVE_R2:	.FILL X0
-SAVE_R4:	.FILL X0
-HUNDRED:	.FILL x64 	;just the value of 100 in hex. It is used with the TIMES_100 sub routine
-TEN:	.FILL xA  	;just the value of 10 in hex. It is used with the TIMES_10 sub routine
+SAVE_R1	.FILL x0
+SAVE_R2	.FILL X0
+SAVE_R4	.FILL X0
+HUNDRED	.FILL x64 	;just the value of 100 in hex. It is used with the TIMES_100 sub routine
+TEN	.FILL xA  	;just the value of 10 in hex. It is used with the TIMES_10 sub routine
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
