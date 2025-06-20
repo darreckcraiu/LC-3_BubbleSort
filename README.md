@@ -1,5 +1,6 @@
 # Bubble Sort in Assembly
 
+This is a fork of a collaborative class project originally hosted at [https://github.com/marina-ig/LC-3_BubbleSort]. My contribution to the project was the majority of the conception and implementation of the program logic.
 This repository contains an implementation of the Bubble Sort algorithm written in Assembly language.
 
 ## Description
